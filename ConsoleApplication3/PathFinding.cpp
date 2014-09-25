@@ -9,12 +9,12 @@ bool compa(PathFindNode* n1, PathFindNode* n2)
 
 std::vector<PathFindNode*> PathFinding::m_openList = std::vector<PathFindNode*>();
 std::vector<PathFindNode*> PathFinding::m_closeList = std::vector<PathFindNode*>();
-
-PathFindNode* PathFinding::Contains(std::vector<PathFindNode*> nodes, PathFindNode* node)
+// Use reference type to prevent copying the parameter(nodes), so that the retured iterator is compatible.
+std::vector<PathFindNode*>::iterator PathFinding::Contains(std::vector<PathFindNode*> &nodes, PathFindNode* node)
 {
 	if (nodes.size() == 0)
 	{
-		return nullptr;
+		return nodes.end();
 	}
 	auto it = std::find_if(nodes.begin(), nodes.end(), [=](PathFindNode* tempNode){
 		return tempNode->position.x == node->position.x &&
@@ -22,14 +22,9 @@ PathFindNode* PathFinding::Contains(std::vector<PathFindNode*> nodes, PathFindNo
 			tempNode->position.z == node->position.z;
 	});
 
-	if (it == nodes.end())
-	{
-		return nullptr;
-	}
-	else
-	{
-		return *it;
-	}
+	
+	return it;
+	
 }
 
 std::vector<PathFindNode*> PathFinding::SurroundPoints(PathFindNode* node, std::function<bool(int, int)> isAvailable)
@@ -37,9 +32,9 @@ std::vector<PathFindNode*> PathFinding::SurroundPoints(PathFindNode* node, std::
 	std::vector<PathFindNode*> nodes = std::vector<PathFindNode*>();
 	PathFindNode* rightNode = new PathFindNode();
 	rightNode->position = XMFLOAT3(node->position.x + 1, node->position.y, node->position.z);
-	if (Contains(m_closeList, rightNode) == nullptr && isAvailable((int)rightNode->position.x, (int)rightNode->position.y))
+	if (Contains(m_closeList, rightNode) == m_closeList.end() && isAvailable((int)rightNode->position.x, (int)rightNode->position.y))
 	{		
-		if (Contains(m_openList, rightNode) == nullptr)
+		if (Contains(m_openList, rightNode) == m_openList.end())
 		{
 			rightNode->parent = node;
 		}
@@ -48,9 +43,9 @@ std::vector<PathFindNode*> PathFinding::SurroundPoints(PathFindNode* node, std::
 
 	PathFindNode* leftNode = new PathFindNode();
 	leftNode->position = XMFLOAT3(node->position.x - 1, node->position.y, node->position.z);
-	if (Contains(m_closeList, leftNode) == nullptr&& isAvailable((int)leftNode->position.x, (int)leftNode->position.y))
+	if (Contains(m_closeList, leftNode) == m_closeList.end() && isAvailable((int)leftNode->position.x, (int)leftNode->position.y))
 	{
-		if (Contains(m_openList, leftNode) == nullptr)
+		if (Contains(m_openList, leftNode) == m_openList.end())
 		{
 			leftNode->parent = node;
 		}
@@ -60,9 +55,9 @@ std::vector<PathFindNode*> PathFinding::SurroundPoints(PathFindNode* node, std::
 	PathFindNode* upNode = new PathFindNode();
 	
 	upNode->position = XMFLOAT3(node->position.x, node->position.y + 1, node->position.z);
-	if (Contains(m_closeList, upNode) == nullptr&& isAvailable((int)upNode->position.x, (int)upNode->position.y))
+	if (Contains(m_closeList, upNode) == m_closeList.end() && isAvailable((int)upNode->position.x, (int)upNode->position.y))
 	{
-		if (Contains(m_openList, upNode) == nullptr)
+		if (Contains(m_openList, upNode) == m_openList.end())
 		{
 			upNode->parent = node;
 		}
@@ -73,9 +68,9 @@ std::vector<PathFindNode*> PathFinding::SurroundPoints(PathFindNode* node, std::
 	PathFindNode* downNode = new PathFindNode();
 	
 	downNode->position = XMFLOAT3(node->position.x, node->position.y - 1, node->position.z);
-	if (Contains(m_closeList, downNode) == nullptr&& isAvailable((int)downNode->position.x, (int)upNode->position.y))
+	if (Contains(m_closeList, downNode) == m_closeList.end() && isAvailable((int)downNode->position.x, (int)upNode->position.y))
 	{
-		if (Contains(m_openList, downNode) == nullptr)
+		if (Contains(m_openList, downNode) == m_openList.end())
 		{
 			downNode->parent = node;
 		}
@@ -97,23 +92,21 @@ PathFindNode* PathFinding::FindPath(PathFindNode* start, PathFindNode* goal, std
 		{
 
 			// Find that node is in the open list.
-			if (Contains(m_openList, node) != nullptr)
+			if (Contains(m_openList, node) != m_openList.end())
 			{
-				node = Contains(m_openList, node);
+				auto it = Contains(m_openList, node);
 				if (node->GetgWeight(tempNode->position) < node->gWeight)
 				{
-					node->parent = tempNode;
-					node->gWeight = node->GetgWeight(tempNode->position);
-					node->CalculateWeight(tempNode->position, goal->position);
+					(*it)->parent = tempNode;
+					(*it)->gWeight = node->GetgWeight(tempNode->position);
+					(*it)->CalculateWeight(tempNode->position, goal->position);
 				}
 			}
 			else
 			{
 				node->CalculateWeight(tempNode->position, goal->position);
+				m_openList.push_back(node);
 			}
-
-			m_openList.push_back(node);
-
 		}
 
 		std::sort(m_openList.begin(), m_openList.end(), compa);
@@ -121,6 +114,11 @@ PathFindNode* PathFinding::FindPath(PathFindNode* start, PathFindNode* goal, std
 		PathFindNode* node = *(m_openList.end() - 1);
 		m_openList.erase(m_openList.end() - 1);
 		tempNode = node;
+		// Not find the path.
+		if (m_openList.size() == 0)
+		{
+			return nullptr;
+		}
 	}
 	return tempNode;
 }

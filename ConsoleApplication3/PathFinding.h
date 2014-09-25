@@ -53,7 +53,7 @@ public:
 
 private:
 	static std::vector<PathFindNode*> SurroundPoints(PathFindNode* node, std::function<bool(int, int)> isAvailable = true);
-	static PathFindNode* Contains(std::vector<PathFindNode*> nodes, PathFindNode* node);
+	static std::vector<PathFindNode*>::iterator Contains(std::vector<PathFindNode*> &nodes, PathFindNode* node);
 	static std::vector<PathFindNode*> m_openList;
 	static std::vector<PathFindNode*> m_closeList;
 };

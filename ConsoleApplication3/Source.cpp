@@ -5,11 +5,11 @@
 
 int array[][12] = {
 		{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-		{ 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1 },
+		{ 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1 },
 		{ 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1 },
 		{ 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1 },
 		{ 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1 },
-		{ 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1 },
+		{ 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1 },
 		{ 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1 },
 		{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
 };
@@ -33,10 +33,18 @@ int main(){
 	PathFindNode * end = new PathFindNode();
 	end->position = XMFLOAT3(6.0f, 10.0f, 0.0f);
 	PathFindNode* node = PathFinding::FindPath(start, end, isAvailable);
-	while (node->parent != nullptr)
+	if (node == nullptr)
 	{
-		std::cout << node->position.x << " " << node->position.y << std::endl;
-		node = node->parent;
+		std::cout << "Not find the path." << std::endl;
 	}
+	else
+	{
+		while (node->parent != nullptr)
+		{
+			std::cout << node->position.x << " " << node->position.y << std::endl;
+			node = node->parent;
+		}
+	}
+	
 	return 0;
 }

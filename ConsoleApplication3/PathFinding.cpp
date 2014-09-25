@@ -1,20 +1,10 @@
 #include "PathFinding.h"
 #include <algorithm>
+
 bool compa(PathFindNode* n1, PathFindNode* n2)
 {
 	return n1->weight > n2->weight;
 }
-
-int array[][12] = {
-		{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-		{ 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1 },
-		{ 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1 },
-		{ 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1 },
-		{ 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1 },
-		{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
-};
 
 
 std::vector<PathFindNode*> PathFinding::m_openList = std::vector<PathFindNode*>();
@@ -42,12 +32,12 @@ PathFindNode* PathFinding::Contains(std::vector<PathFindNode*> nodes, PathFindNo
 	}
 }
 
-std::vector<PathFindNode*> PathFinding::SurroundPoints(PathFindNode* node)
+std::vector<PathFindNode*> PathFinding::SurroundPoints(PathFindNode* node, std::function<bool(int, int)> isAvailable)
 {
 	std::vector<PathFindNode*> nodes = std::vector<PathFindNode*>();
 	PathFindNode* rightNode = new PathFindNode();
 	rightNode->position = XMFLOAT3(node->position.x + 1, node->position.y, node->position.z);
-	if (Contains(m_closeList, rightNode) == nullptr && array[(int)rightNode->position.x][(int)rightNode->position.y] == 0)
+	if (Contains(m_closeList, rightNode) == nullptr && isAvailable((int)rightNode->position.x, (int)rightNode->position.y))
 	{		
 		if (Contains(m_openList, rightNode) == nullptr)
 		{
@@ -58,7 +48,7 @@ std::vector<PathFindNode*> PathFinding::SurroundPoints(PathFindNode* node)
 
 	PathFindNode* leftNode = new PathFindNode();
 	leftNode->position = XMFLOAT3(node->position.x - 1, node->position.y, node->position.z);
-	if (Contains(m_closeList, leftNode) == nullptr&& array[(int)leftNode->position.x][(int)leftNode->position.y] == 0)
+	if (Contains(m_closeList, leftNode) == nullptr&& isAvailable((int)leftNode->position.x, (int)leftNode->position.y))
 	{
 		if (Contains(m_openList, leftNode) == nullptr)
 		{
@@ -70,7 +60,7 @@ std::vector<PathFindNode*> PathFinding::SurroundPoints(PathFindNode* node)
 	PathFindNode* upNode = new PathFindNode();
 	
 	upNode->position = XMFLOAT3(node->position.x, node->position.y + 1, node->position.z);
-	if (Contains(m_closeList, upNode) == nullptr&& array[(int)upNode->position.x][(int)upNode->position.y] == 0)
+	if (Contains(m_closeList, upNode) == nullptr&& isAvailable((int)upNode->position.x, (int)upNode->position.y))
 	{
 		if (Contains(m_openList, upNode) == nullptr)
 		{
@@ -83,7 +73,7 @@ std::vector<PathFindNode*> PathFinding::SurroundPoints(PathFindNode* node)
 	PathFindNode* downNode = new PathFindNode();
 	
 	downNode->position = XMFLOAT3(node->position.x, node->position.y - 1, node->position.z);
-	if (Contains(m_closeList, downNode) == nullptr&& array[(int)downNode->position.x][(int)downNode->position.y] == 0)
+	if (Contains(m_closeList, downNode) == nullptr&& isAvailable((int)downNode->position.x, (int)upNode->position.y))
 	{
 		if (Contains(m_openList, downNode) == nullptr)
 		{
@@ -95,7 +85,7 @@ std::vector<PathFindNode*> PathFinding::SurroundPoints(PathFindNode* node)
 	return nodes;
 }
 
-PathFindNode* PathFinding::FindPath(PathFindNode* start, PathFindNode* goal)
+PathFindNode* PathFinding::FindPath(PathFindNode* start, PathFindNode* goal, std::function<bool(int, int)> isAvailable)
 {
 	PathFindNode* tempNode = start;
 	while (tempNode->position.x != goal->position.x || 
@@ -103,7 +93,7 @@ PathFindNode* PathFinding::FindPath(PathFindNode* start, PathFindNode* goal)
 		tempNode->position.z != goal->position.z)
 	{
 		m_closeList.push_back(tempNode);
-		for (PathFindNode* node : SurroundPoints(tempNode))
+		for (PathFindNode* node : SurroundPoints(tempNode, isAvailable))
 		{
 
 			// Find that node is in the open list.

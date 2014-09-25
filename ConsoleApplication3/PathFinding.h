@@ -1,6 +1,7 @@
 #pragma once
 #include <DirectXMath.h>
 #include <vector>
+#include <functional>
 using namespace DirectX;
 struct PathFindNode
 {
@@ -48,10 +49,10 @@ struct PathFindNode
 class PathFinding
 {
 public:
-	static PathFindNode* FindPath(PathFindNode* start, PathFindNode* goal);
+	static PathFindNode* FindPath(PathFindNode* start, PathFindNode* goal, std::function<bool(int , int)> isAvailable = true);
 
 private:
-	static std::vector<PathFindNode*> SurroundPoints(PathFindNode* node);
+	static std::vector<PathFindNode*> SurroundPoints(PathFindNode* node, std::function<bool(int, int)> isAvailable = true);
 	static PathFindNode* Contains(std::vector<PathFindNode*> nodes, PathFindNode* node);
 	static std::vector<PathFindNode*> m_openList;
 	static std::vector<PathFindNode*> m_closeList;

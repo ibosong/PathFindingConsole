@@ -28,11 +28,11 @@ bool isAvailable(int x, int y)
 
 int main(){
 	
-	PathFindNode * start = new PathFindNode();
+	std::shared_ptr<PathFindNode> start = std::make_shared<PathFindNode>();
 	start->position = XMFLOAT3(1.0f, 1.0f, 0.0f);
-	PathFindNode * end = new PathFindNode();
+	std::shared_ptr<PathFindNode> end = std::make_shared<PathFindNode>();
 	end->position = XMFLOAT3(6.0f, 10.0f, 0.0f);
-	PathFindNode* node = PathFinding::FindPath(start, end, isAvailable);
+	std::shared_ptr<PathFindNode> node = PathFinding::FindPath(start, end, isAvailable);
 	if (node == nullptr)
 	{
 		std::cout << "Not find the path." << std::endl;
@@ -45,6 +45,5 @@ int main(){
 			node = node->parent;
 		}
 	}
-	
 	return 0;
 }

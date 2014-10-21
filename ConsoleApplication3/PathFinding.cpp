@@ -1,22 +1,23 @@
 #include "PathFinding.h"
 #include <algorithm>
 
-bool compa(PathFindNode* n1, PathFindNode* n2)
+
+bool compa(std::shared_ptr<PathFindNode> n1, std::shared_ptr<PathFindNode> n2)
 {
 	return n1->weight > n2->weight;
 }
 
 
-std::vector<PathFindNode*> PathFinding::m_openList = std::vector<PathFindNode*>();
-std::vector<PathFindNode*> PathFinding::m_closeList = std::vector<PathFindNode*>();
+std::vector<std::shared_ptr<PathFindNode>> PathFinding::m_openList = std::vector<std::shared_ptr<PathFindNode>>();
+std::vector<std::shared_ptr<PathFindNode>> PathFinding::m_closeList = std::vector<std::shared_ptr<PathFindNode>>();
 // Use reference type to prevent copying the parameter(nodes), so that the retured iterator is compatible.
-std::vector<PathFindNode*>::iterator PathFinding::Contains(std::vector<PathFindNode*> &nodes, PathFindNode* node)
+std::vector<std::shared_ptr<PathFindNode>>::iterator PathFinding::Contains(std::vector<std::shared_ptr<PathFindNode>> &nodes, std::shared_ptr<PathFindNode> node)
 {
 	if (nodes.size() == 0)
 	{
 		return nodes.end();
 	}
-	auto it = std::find_if(nodes.begin(), nodes.end(), [=](PathFindNode* tempNode){
+	auto it = std::find_if(nodes.begin(), nodes.end(), [=](std::shared_ptr<PathFindNode> tempNode){
 		return tempNode->position.x == node->position.x &&
 			tempNode->position.y == node->position.y &&
 			tempNode->position.z == node->position.z;
@@ -27,10 +28,10 @@ std::vector<PathFindNode*>::iterator PathFinding::Contains(std::vector<PathFindN
 	
 }
 
-std::vector<PathFindNode*> PathFinding::SurroundPoints(PathFindNode* node, std::function<bool(int, int)> isAvailable)
+std::vector<std::shared_ptr<PathFindNode>> PathFinding::SurroundPoints(std::shared_ptr<PathFindNode> node, std::function<bool(int, int)> isAvailable)
 {
-	std::vector<PathFindNode*> nodes = std::vector<PathFindNode*>();
-	PathFindNode* rightNode = new PathFindNode();
+	std::vector<std::shared_ptr<PathFindNode>> nodes = std::vector<std::shared_ptr<PathFindNode>>();
+	std::shared_ptr<PathFindNode> rightNode = std::make_shared<PathFindNode>();
 	rightNode->position = XMFLOAT3(node->position.x + 1, node->position.y, node->position.z);
 	if (Contains(m_closeList, rightNode) == m_closeList.end() && isAvailable((int)rightNode->position.x, (int)rightNode->position.y))
 	{		
@@ -41,7 +42,7 @@ std::vector<PathFindNode*> PathFinding::SurroundPoints(PathFindNode* node, std::
 		nodes.push_back(rightNode);
 	}
 
-	PathFindNode* leftNode = new PathFindNode();
+	std::shared_ptr<PathFindNode> leftNode = std::make_shared<PathFindNode>();
 	leftNode->position = XMFLOAT3(node->position.x - 1, node->position.y, node->position.z);
 	if (Contains(m_closeList, leftNode) == m_closeList.end() && isAvailable((int)leftNode->position.x, (int)leftNode->position.y))
 	{
@@ -52,7 +53,7 @@ std::vector<PathFindNode*> PathFinding::SurroundPoints(PathFindNode* node, std::
 		nodes.push_back(leftNode);
 	}
 
-	PathFindNode* upNode = new PathFindNode();
+	std::shared_ptr<PathFindNode> upNode = std::make_shared<PathFindNode>();
 	
 	upNode->position = XMFLOAT3(node->position.x, node->position.y + 1, node->position.z);
 	if (Contains(m_closeList, upNode) == m_closeList.end() && isAvailable((int)upNode->position.x, (int)upNode->position.y))
@@ -65,7 +66,7 @@ std::vector<PathFindNode*> PathFinding::SurroundPoints(PathFindNode* node, std::
 	}
 
 
-	PathFindNode* downNode = new PathFindNode();
+	std::shared_ptr<PathFindNode> downNode = std::make_shared<PathFindNode>();
 	
 	downNode->position = XMFLOAT3(node->position.x, node->position.y - 1, node->position.z);
 	if (Contains(m_closeList, downNode) == m_closeList.end() && isAvailable((int)downNode->position.x, (int)upNode->position.y))
@@ -80,15 +81,15 @@ std::vector<PathFindNode*> PathFinding::SurroundPoints(PathFindNode* node, std::
 	return nodes;
 }
 
-PathFindNode* PathFinding::FindPath(PathFindNode* start, PathFindNode* goal, std::function<bool(int, int)> isAvailable)
+std::shared_ptr<PathFindNode> PathFinding::FindPath(std::shared_ptr<PathFindNode> start, std::shared_ptr<PathFindNode> goal, std::function<bool(int, int)> isAvailable)
 {
-	PathFindNode* tempNode = start;
+	std::shared_ptr<PathFindNode> tempNode = start;
 	while (tempNode->position.x != goal->position.x || 
 		tempNode->position.y != goal->position.y ||
 		tempNode->position.z != goal->position.z)
 	{
 		m_closeList.push_back(tempNode);
-		for (PathFindNode* node : SurroundPoints(tempNode, isAvailable))
+		for (std::shared_ptr<PathFindNode> node : SurroundPoints(tempNode, isAvailable))
 		{
 
 			// Find that node is in the open list.
@@ -111,7 +112,7 @@ PathFindNode* PathFinding::FindPath(PathFindNode* start, PathFindNode* goal, std
 
 		std::sort(m_openList.begin(), m_openList.end(), compa);
 		// The node whose weight is the smallest.
-		PathFindNode* node = *(m_openList.end() - 1);
+		std::shared_ptr<PathFindNode> node = *(m_openList.end() - 1);
 		m_openList.erase(m_openList.end() - 1);
 		tempNode = node;
 		// Not find the path.

@@ -2,10 +2,11 @@
 #include <DirectXMath.h>
 #include <vector>
 #include <functional>
+#include <memory>
 using namespace DirectX;
 struct PathFindNode
 {
-	PathFindNode* parent = nullptr;
+	std::shared_ptr<PathFindNode> parent = nullptr;
 	XMFLOAT3 position{ 0.0f, 0.0f, 0.0f };
 	int weight = 0;
 	int gWeight = 0;
@@ -49,12 +50,12 @@ struct PathFindNode
 class PathFinding
 {
 public:
-	static PathFindNode* FindPath(PathFindNode* start, PathFindNode* goal, std::function<bool(int , int)> isAvailable = true);
+	static std::shared_ptr<PathFindNode> FindPath(std::shared_ptr<PathFindNode> start, std::shared_ptr<PathFindNode> goal, std::function<bool(int, int)> isAvailable = true);
 
 private:
-	static std::vector<PathFindNode*> SurroundPoints(PathFindNode* node, std::function<bool(int, int)> isAvailable = true);
-	static std::vector<PathFindNode*>::iterator Contains(std::vector<PathFindNode*> &nodes, PathFindNode* node);
-	static std::vector<PathFindNode*> m_openList;
-	static std::vector<PathFindNode*> m_closeList;
+	static std::vector<std::shared_ptr<PathFindNode>> SurroundPoints(std::shared_ptr<PathFindNode> node, std::function<bool(int, int)> isAvailable = true);
+	static std::vector<std::shared_ptr<PathFindNode>>::iterator Contains(std::vector<std::shared_ptr<PathFindNode>> &nodes, std::shared_ptr<PathFindNode> node);
+	static std::vector<std::shared_ptr<PathFindNode>> m_openList;
+	static std::vector<std::shared_ptr<PathFindNode>> m_closeList;
 };
 

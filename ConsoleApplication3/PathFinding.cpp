@@ -69,7 +69,7 @@ std::vector<std::shared_ptr<PathFindNode>> PathFinding::SurroundPoints(std::shar
 	std::shared_ptr<PathFindNode> downNode = std::make_shared<PathFindNode>();
 	
 	downNode->position = XMFLOAT3(node->position.x, node->position.y - 1, node->position.z);
-	if (Contains(m_closeList, downNode) == m_closeList.end() && isAvailable((int)downNode->position.x, (int)upNode->position.y))
+	if (Contains(m_closeList, downNode) == m_closeList.end() && isAvailable((int)downNode->position.x, (int)downNode->position.y))
 	{
 		if (Contains(m_openList, downNode) == m_openList.end())
 		{

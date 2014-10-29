@@ -32,7 +32,8 @@ int main(){
 	start->position = XMFLOAT3(1.0f, 1.0f, 0.0f);
 	std::shared_ptr<PathFindNode> end = std::make_shared<PathFindNode>();
 	end->position = XMFLOAT3(6.0f, 10.0f, 0.0f);
-	std::shared_ptr<PathFindNode> node = PathFinding::FindPath(start, end, isAvailable);
+	PathFinding pathFinding;
+	std::shared_ptr<PathFindNode> node = pathFinding.FindPath(start, end, isAvailable);
 	if (node == nullptr)
 	{
 		std::cout << "Not find the path." << std::endl;

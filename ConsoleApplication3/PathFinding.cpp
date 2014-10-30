@@ -116,13 +116,15 @@ std::shared_ptr<PathFindNode> PathFinding::FindPath(std::shared_ptr<PathFindNode
 		std::sort(m_openList.begin(), m_openList.end(), compa);
 		// The node whose weight is the smallest.
 		std::shared_ptr<PathFindNode> node = *(m_openList.end() - 1);
-		m_openList.erase(m_openList.end() - 1);
+		
 		tempNode = node;
 		// Not find the path.
 		if (m_openList.size() == 0)
 		{
 			return nullptr;
 		}
+
+		m_openList.erase(m_openList.end() - 1);
 	}
 	return tempNode;
 }
